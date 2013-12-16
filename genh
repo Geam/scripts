@@ -4,7 +4,7 @@ then
 	echo "Ducon, le nom du fichier a créer"
 else
 	FILES=$(find . -name "*.c" | grep -v "libft")
-	HFILE=$1.h
+	HFILE=$1
 	if [ -f $HFILE ]
 	then
 		mv $HFILE $HFILE.back
