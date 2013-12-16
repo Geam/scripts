@@ -1,0 +1,19 @@
+#!/bin/bash
+if [ "$(echo $1 | grep "^[ [:digit:] ]*$")" ]
+then
+	CACA=$(ldapsearch mobile-phone=$1 | grep "cn:\|uid:\|mobile-phone:\|email-address" | grep -v "mother\|father\|emergency" | tr ' ' '∑')
+else
+	CACA=$(ldapsearch uid=$1 | grep "cn:\|uid:\|mobile-phone:\|email-address" | grep -v "mother\|father\|emergency" | tr ' ' '∑')
+fi
+for TRUC in $CACA
+do
+	TUID=$(echo $TRUC | grep "uid" | cut -d '∑' -f 2)
+	if [[ ! ( -z $2 ) ]]
+	then
+		if [[ ! ( -z $TUID ) ]]
+		then
+			open https://dashboard.42.fr/user/profile/$TUID
+		fi
+	fi
+	echo $TRUC | tr '∑' ' '
+done

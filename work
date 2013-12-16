@@ -1,0 +1,25 @@
+#!/bin/bash
+cd ~
+if [ $# == "0" ]
+then
+	echo -e "Module : $MODULE\nProjet : $PROJECT"
+elif [ $1 == "mod" ]
+then
+	echo "Changement de module pour $2"
+	mv .zshrc .zshrc.old
+	cat .zshrc.old | sed 's/MODULE='$MODULE'/MODULE='$2'/' > .zshrc
+	source ~/.zshrc
+elif [ $1 == "proj" ]
+then
+	echo "Changement de projet pour $2"
+	mv .zshrc .zshrc.old
+	cat .zshrc.old | sed 's/PROJECT='$PROJECT'/PROJECT='$2'/' > .zshrc
+	source ~/.zshrc
+elif [ $1 == 'all' ]
+then
+	echo "Changement de module pour $1f"
+	echo "Changement de projet pour $2"
+	mv .zshrc .zshrc.old
+	cat .zshrc.old | sed 's/MODULE='$MODULE'/MODULE='$2'/' | sed 's/PROJECT='$PROJECT'/PROJECT='$3'/' > .zshrc
+	source ~/.zshrc
+fi

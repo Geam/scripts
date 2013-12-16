@@ -1,0 +1,64 @@
+#!/bin/bash
+NAME=Makefile
+if [ -f $NAME ]
+then
+	mv $NAME $NAME.back
+fi
+touch $NAME
+~/scripts/header_42 $NAME "#"
+echo -e "\nCPATH = srcs" >> $NAME
+echo -e "HPATH = includes" >> $NAME
+echo -e "LIBPATH = libft" >> $NAME
+echo -e "\nNAME = $1" >> $NAME
+echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
+echo -e "\nCC = /usr/bin/gcc" >> $NAME
+echo -e "RM = /bin/rm" >> $NAME
+echo -e "CFLAGS = -Wall -Wextra -Werror" >> $NAME
+
+SRCS=$(ls srcs)
+SRC="SRC = "
+for FILE in $SRCS
+do
+	if [[ -z $MARK ]]
+	then
+		SRC="$SRC$FILE"
+		MARK="done"
+	else
+		SRC="$SRC ∑\n\t$FILE"
+	fi
+done
+echo -e "\n$SRC" | sed 's/∑/\\/g'>> $NAME
+
+echo -e "\nCFILES = \$(patsubst %,\$(CPATH)/%,\$(SRC))" >> $NAME
+echo -e "OFILES = \$(patsubst %.c,%.o,\$(CFILES))" >> $NAME
+
+echo -e "\nall: \$(LIB) \$(NAME)" >> $NAME
+
+echo -e "\n\$(NAME): \$(OFILES)" >> $NAME
+echo -e "\t@echo \"Building \$(NAME)\"" >> $NAME
+echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
+
+echo -e "\n%.o: %.c" >> $NAME
+echo -e "\t@echo \"Creating file \$@\"" >> $NAME
+echo -e "\t@\$(CC) -I \$(HPATH) -I \$(LIBPATH)/\$(HPATH) \$(CFLAGS) -c \$^ -o \$@" >> $NAME
+
+echo -e "\nclean:" >> $NAME
+echo -e "\t@echo \"Deletion of building files\"" >> $NAME
+echo -e "\t@\$(RM) -f \$(OFILES)" >> $NAME
+
+echo -e "\nfclean: clean" >> $NAME
+echo -e "\t@echo \"Deletion of \$(NAME)\"" >> $NAME
+echo -e "\t@\$(RM) -f \$(NAME)" >> $NAME
+
+echo -e "\nre: fclean all" >> $NAME
+
+echo -e "\n\$(LIB):" >> $NAME
+echo -e "\t@make -C \$(LIBPATH)" >> $NAME
+
+echo -e "\nlib: \$(LIB)" >> $NAME
+
+echo -e "\nlib.clean:" >> $NAME
+echo -e "\t@make -C \$(LIBPATH) clean" >> $NAME
+
+echo -e "\nlib.fclean:" >> $NAME
+echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME

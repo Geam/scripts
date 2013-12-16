@@ -1,0 +1,19 @@
+#!/bin/sh
+HFILE=$(echo $1 | sed 's/\.c/\.h/')
+if [ -f $HFILE ]
+then
+	mv $HFILE back/$HFILE.back
+fi
+cat $1 | grep "\*/" | sed 's/\.c/\.h/' >> $HFILE
+DEFINE=$(echo $HFILE | tr "." "_" | tr a-z A-Z)
+echo "\n#ifndef "$DEFINE"\n# define "$DEFINE"\n" >> $HFILE
+cat $1 | grep include | grep -v \"$HFILE\">> $HFILE
+echo "" >> $HFILE
+cat $1 | grep "(" | grep "int\|char\|size_t\|void" | grep -v ";\|while\|if" | sed 's/.*/&;/' >> $HFILE
+echo "\n#endif /* !"$DEFINE" */" >> $HFILE
+mv $1 $1.back
+cat $1.back | grep "\*/" >> $1
+echo "" >> $1
+echo "#include \""$HFILE"\"" >> $1
+cat $1.back | grep -v "\*/\|include" | tr "\n" "∑" | sed 's/∑∑/∑/g' | tr -d "\n" | tr "∑" "\n" >> $1
+mv $1.back back/

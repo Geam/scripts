@@ -1,0 +1,31 @@
+#!/bin/bash
+if [[ -z $1 ]]
+then
+	echo "Ducon, le nom du fichier a créer"
+else
+	FILES=$(find . -name "*.c" | grep -v "libft")
+	HFILE=$1.h
+	if [ -f $HFILE ]
+	then
+		mv $HFILE $HFILE.back
+	fi
+	touch $HFILE
+	~/scripts/header_42 $HFILE "/"
+	DEFINE=$(echo $HFILE | tr "." "_" | tr a-z A-Z)
+	echo -e "\n#ifndef "$DEFINE"\n# define "$DEFINE"\n" >> $HFILE
+	if [[ $2 = "lib" ]]
+	then
+		echo -e "#include <string.h>\n" >> $HFILE
+		echo -e "typedef struct\t\ts_list" >> $HFILE
+		echo -e "{" >> $HFILE
+		echo -e "\tvoid\t\t\t*content;" >> $HFILE
+		echo -e "\tsize_t\t\t\tcontent_size;" >> $HFILE
+		echo -e "\tstruct s_list\t*next;" >> $HFILE
+		echo -e "}\t\t\t\t\tt_list;\n" >> $HFILE
+	fi
+	for FILE in $FILES
+	do
+			cat $FILE | grep "(" | grep "int\|char\|size_t\|void" | grep -v ";\|while\|if\||\|&\|sizeof\|static" | sed 's/.*/&;/' >> $HFILE
+	done
+	echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
+fi

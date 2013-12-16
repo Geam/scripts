@@ -1,0 +1,8 @@
+#!/bin/bash
+cd $COR
+if [[ -z $1 ]]
+then
+	echo 'Erreur : manque de donnee'
+else
+		git clone vogsphere@vogsphere.42.fr:$MOD_COR-1-001/2013/par-1-1/$PROJ_COR/$1 $PROJ_COR-$1
+fi

@@ -1,0 +1,6 @@
+#!/bin/sh
+cd ~/Downloads/
+tar -xzf mdelage_trace.tgz
+rm mdelage_trace.tgz
+emacs mdelage.trace
+rm mdelage.trace

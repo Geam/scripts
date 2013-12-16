@@ -1,0 +1,9 @@
+#!/bin/bash
+cd ~/Rendu/perso/$MODULE
+if [[ -z $1 ]]
+then
+	name=${PROJECT}
+else
+	name=${1}
+fi
+git clone vogsphere@vogsphere.42.fr:$MODULE-1-001/2013/par-1-1/$PROJECT/mdelage $name

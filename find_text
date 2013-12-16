@@ -1,0 +1,10 @@
+#!/bin/bash
+FILES=$(ls)
+for FILE in $FILES
+do
+	RESULT=$(cat $FILE | grep "$1")
+	if [[ -n $RESULT ]]
+	then
+		echo $FILE
+	fi
+done

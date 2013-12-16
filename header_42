@@ -1,0 +1,84 @@
+#!/bin/bash
+if [[ $2 = "#" ]]
+then
+	START_LINE='#  '
+	END_LINE='  #'
+	START_LINE_SPE='#**'
+	END_LINE_SPE='**#'
+elif [[ $2 = "/" ]]
+then
+	START_LINE='/* '
+	END_LINE=' */'
+	START_LINE_SPE='/* '
+	END_LINE_SPE=' */'
+elif [[ $2 = ";" ]]
+then
+	START_LINE=';  '
+        END_LINE='  ;'
+        START_LINE_SPE=';**'
+        END_LINE_SPE='**;'
+fi
+FILE=$1
+
+LINE_1='***********************************************'
+LINE_2='                                               '
+LINE_3='                                               '
+LINE_4='  '$FILE
+LINE_5='                                               '
+LINE_6='  By: '$USER' <'$MAIL'>'
+LINE_7='                                               '
+LINE_8='  Created: '
+LINE_9='  Updated: '
+LINE_10='                                               '
+
+END_LINE_1="***************************"
+END_LINE_2="                           "
+END_LINE_3="        :::      ::::::::  "
+END_LINE_4="      :+:      :+:    :+:  "
+END_LINE_5="    +:+ +:+         +:+    "
+END_LINE_6="  +#+  +:+       +#+       "
+END_LINE_7="+#+#+#+#+#+   +#+          "
+END_LINE_8="     #+#    #+#            "
+END_LINE_9="    ###   ########.fr      "
+
+DATE=$(date '+%Y/%m/%d %X')' by '$USER
+LINE_8=$LINE_8$DATE
+LINE_9=$LINE_9$DATE
+
+LEN_LINE_4=${#LINE_4}
+LEN_LINE_6=${#LINE_6}
+LEN_LINE_8=${#LINE_8}
+LEN_LINE_9=${#LINE_9}
+
+while [ "$LEN_LINE_4" -ne "47" ]
+do
+	LINE_4=$LINE_4' '
+	LEN_LINE_4=$(expr $LEN_LINE_4 + 1)
+done
+while [ "$LEN_LINE_6" -ne "47" ]
+do
+	LINE_6=$LINE_6' '
+	LEN_LINE_6=$(expr $LEN_LINE_6 + 1)
+done
+while [ "$LEN_LINE_8" -ne "47" ]
+do
+	LINE_8=$LINE_8' '
+	LEN_LINE_8=$(expr $LEN_LINE_8 + 1)
+done
+while [ "$LEN_LINE_9" -ne "47" ]
+do
+	LINE_9=$LINE_9' '
+	LEN_LINE_9=$(expr $LEN_LINE_9 + 1)
+done
+
+echo "$START_LINE_SPE$LINE_1$END_LINE_1$END_LINE_SPE" > $FILE
+echo "$START_LINE$LINE_2$END_LINE_2$END_LINE" >> $FILE
+echo "$START_LINE$LINE_3$END_LINE_3$END_LINE" >> $FILE
+echo "$START_LINE$LINE_4$END_LINE_4$END_LINE" >> $FILE
+echo "$START_LINE$LINE_5$END_LINE_5$END_LINE" >> $FILE
+echo "$START_LINE$LINE_6$END_LINE_6$END_LINE" >> $FILE
+echo "$START_LINE$LINE_7$END_LINE_7$END_LINE" >> $FILE
+echo "$START_LINE$LINE_8$END_LINE_8$END_LINE" >> $FILE
+echo "$START_LINE$LINE_9$END_LINE_9$END_LINE" >> $FILE
+echo "$START_LINE$LINE_10$END_LINE_2$END_LINE" >> $FILE
+echo "$START_LINE_SPE$LINE_1$END_LINE_1$END_LINE_SPE" >> $FILE

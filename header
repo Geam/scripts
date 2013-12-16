@@ -1,0 +1,20 @@
+#!/bin/bash
+if [[ -z $1 ]]
+then
+	echo "Tu as oublié le nom de fichier."
+else
+	FILE=ft_$1.c
+	FUNC=ft_$1
+	if [ -f $FILE ]
+	then
+		mv $FILE $FILE.back
+	fi
+	touch $FILE
+	~/scripts/header_42 $FILE "/"
+	echo "" >> $FILE
+	echo "#include \"libft.h\"" >> $FILE
+	echo "" >> $FILE
+	echo -e "void\t$FUNC()" >> $FILE
+	echo "{" >> $FILE
+	echo "}" >> $FILE
+fi
