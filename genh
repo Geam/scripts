@@ -2,6 +2,15 @@
 if [[ -z $1 ]]
 then
 	echo "Ducon, le nom du fichier a créer"
+elif [[ $1 = "help" ]]
+then
+	echo "+-_-_-_-_-_-_-_-_-_-_-_-_-_-_+"
+	echo "| Utilisation du script genh |"
+	echo "+-_-_-_-_-_-_-_-_-_-_-_-_-_-_+"
+	echo "Il faut se placer dans le répertoire contenant les fichiers .c puis :"
+	echo -e "\ngenh nom_du_fichier.h\n"
+	echo -e "/!\\ N'oubliez pas de vérifier l'alignement des fonctions\n"
+	echo -e "Si le fichier existe déjà, il sera renommé en nom_de_fichier.h.back\n"
 else
 	FILES=$(find . -name "*.c" | grep -v "libft")
 	HFILE=$1
