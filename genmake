@@ -15,7 +15,7 @@ echo -e "\nCC = /usr/bin/gcc" >> $NAME
 echo -e "RM = /bin/rm" >> $NAME
 echo -e "CFLAGS = -Wall -Wextra -Werror" >> $NAME
 
-SRCS=$(ls srcs)
+SRCS=$(ls srcs | grep .c)
 SRC="SRC = "
 for FILE in $SRCS
 do
