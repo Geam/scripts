@@ -1,0 +1,13 @@
+#!/bin/sh
+cd $WP
+FILES=$(git status | grep "modified" | cut -d ' ' -f 4)
+for FILE in $FILES
+do
+	echo $FILE
+done
+if [[ $1 = "push" ]]
+then
+	git add $FILES
+	git commit -m "MaJ de : $FILES"
+	git push
+fi
