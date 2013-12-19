@@ -1,64 +1,78 @@
 #!/bin/bash
-NAME=Makefile
-if [ -f $NAME ]
+if [[ $1 = "help" ]]
 then
-	mv $NAME $NAME.back
-fi
-touch $NAME
-~/scripts/header_42 $NAME "#"
-echo -e "\nCPATH = srcs" >> $NAME
-echo -e "HPATH = includes" >> $NAME
-echo -e "LIBPATH = libft" >> $NAME
-echo -e "\nNAME = $1" >> $NAME
-echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
-echo -e "\nCC = /usr/bin/gcc" >> $NAME
-echo -e "RM = /bin/rm" >> $NAME
-echo -e "CFLAGS = -Wall -Wextra -Werror" >> $NAME
-
-SRCS=$(ls srcs | grep .c)
-SRC="SRC = "
-for FILE in $SRCS
-do
-	if [[ -z $MARK ]]
+	echo "+-_-_-_-_-_-_-_-_-_-_-_-_+"
+	echo "| Utilisation de genmake |"
+	echo "+-_-_-_-_-_-_-_-_-_-_-_-_+"
+	echo -e "\nIl faut se placer à la racine du projet tel que suit :"
+	echo "./auteur"
+	echo "./srcs/*.c"
+	echo "./includes/*.h"
+	echo -e "\nPuis :"
+	echo -e "genmake nom_de_l'exécutable\n"
+	echo -e "Si le fichier Makefile existe déjà, il est renommé en Makefile.back\n"
+else
+	NAME=Makefile
+	if [ -f $NAME ]
 	then
-		SRC="$SRC$FILE"
-		MARK="done"
-	else
-		SRC="$SRC ∑\n\t$FILE"
+		mv $NAME $NAME.back
 	fi
-done
-echo -e "\n$SRC" | sed 's/∑/\\/g'>> $NAME
+	touch $NAME
+	~/scripts/header_42 $NAME "#"
+	echo -e "\nCPATH = srcs" >> $NAME
+	echo -e "HPATH = includes" >> $NAME
+	echo -e "LIBPATH = libft" >> $NAME
+	echo -e "\nNAME = $1" >> $NAME
+	echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
+	echo -e "\nCC = /usr/bin/gcc" >> $NAME
+	echo -e "RM = /bin/rm" >> $NAME
+	echo -e "CFLAGS = -Wall -Wextra -Werror" >> $NAME
 
-echo -e "\nCFILES = \$(patsubst %,\$(CPATH)/%,\$(SRC))" >> $NAME
-echo -e "OFILES = \$(patsubst %.c,%.o,\$(CFILES))" >> $NAME
+	SRCS=$(ls srcs | grep .c)
+	SRC="SRC = "
+	for FILE in $SRCS
+	do
+		if [[ -z $MARK ]]
+		then
+			SRC="$SRC$FILE"
+			MARK="done"
+		else
+			SRC="$SRC ∑\n\t$FILE"
+		fi
+	done
+	echo -e "\n$SRC" | sed 's/∑/\\/g'>> $NAME
 
-echo -e "\nall: \$(LIB) \$(NAME)" >> $NAME
+	echo -e "\nCFILES = \$(patsubst %,\$(CPATH)/%,\$(SRC))" >> $NAME
+	echo -e "OFILES = \$(patsubst %.c,%.o,\$(CFILES))" >> $NAME
 
-echo -e "\n\$(NAME): \$(OFILES)" >> $NAME
-echo -e "\t@echo \"Building \$(NAME)\"" >> $NAME
-echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
+	echo -e "\nall: \$(LIB) \$(NAME)" >> $NAME
 
-echo -e "\n%.o: %.c" >> $NAME
-echo -e "\t@echo \"Creating file \$@\"" >> $NAME
-echo -e "\t@\$(CC) -I \$(HPATH) -I \$(LIBPATH)/\$(HPATH) \$(CFLAGS) -c \$^ -o \$@" >> $NAME
+	echo -e "\n\$(NAME): \$(OFILES)" >> $NAME
+	echo -e "\t@echo \"Building \$(NAME)\"" >> $NAME
+	echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
 
-echo -e "\nclean:" >> $NAME
-echo -e "\t@echo \"Deletion of building files\"" >> $NAME
-echo -e "\t@\$(RM) -f \$(OFILES)" >> $NAME
+	echo -e "\n%.o: %.c" >> $NAME
+	echo -e "\t@echo \"Creating file \$@\"" >> $NAME
+	echo -e "\t@\$(CC) -I \$(HPATH) -I \$(LIBPATH)/\$(HPATH) \$(CFLAGS) -c \$^ -o \$@" >> $NAME
 
-echo -e "\nfclean: clean" >> $NAME
-echo -e "\t@echo \"Deletion of \$(NAME)\"" >> $NAME
-echo -e "\t@\$(RM) -f \$(NAME)" >> $NAME
+	echo -e "\nclean:" >> $NAME
+	echo -e "\t@echo \"Deletion of building files\"" >> $NAME
+	echo -e "\t@\$(RM) -f \$(OFILES)" >> $NAME
 
-echo -e "\nre: fclean all" >> $NAME
+	echo -e "\nfclean: clean" >> $NAME
+	echo -e "\t@echo \"Deletion of \$(NAME)\"" >> $NAME
+	echo -e "\t@\$(RM) -f \$(NAME)" >> $NAME
 
-echo -e "\n\$(LIB):" >> $NAME
-echo -e "\t@make -C \$(LIBPATH)" >> $NAME
+	echo -e "\nre: fclean all" >> $NAME
 
-echo -e "\nlib: \$(LIB)" >> $NAME
+	echo -e "\n\$(LIB):" >> $NAME
+	echo -e "\t@make -C \$(LIBPATH)" >> $NAME
 
-echo -e "\nlib.clean:" >> $NAME
-echo -e "\t@make -C \$(LIBPATH) clean" >> $NAME
+	echo -e "\nlib: \$(LIB)" >> $NAME
 
-echo -e "\nlib.fclean:" >> $NAME
-echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME
+	echo -e "\nlib.clean:" >> $NAME
+	echo -e "\t@make -C \$(LIBPATH) clean" >> $NAME
+
+	echo -e "\nlib.fclean:" >> $NAME
+	echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME
+fi
