@@ -34,7 +34,7 @@ else
 	fi
 	for FILE in $FILES
 	do
-			cat $FILE | grep "(" | grep "int\|char\|size_t\|void" | grep -v ";\|while\|if\||\|&\|sizeof\|static" | sed 's/.*/&;/' >> $HFILE
+			cat $FILE | grep "(" | grep "int\|char\|size_t\|void" | grep -v ";\|\twhile \|\tif \||\|&\|sizeof\|static " | sed 's/.*/&;/' >> $HFILE
 	done
 	echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
 fi
