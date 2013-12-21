@@ -10,8 +10,24 @@ then
 	echo "./includes/*.h"
 	echo -e "\nPuis :"
 	echo -e "genmake nom_de_l'exécutable\n"
+	echo -e "Vous disposez des options suivantes :"
+	echo -e "libft : pour que le makefile utilise la libft"
+	echo -e "lib   : pour dire au makefile que vous souhaitez faire une librairie"
+	echo -e "/!\\ Ces deux options ne sont pas compatibles, mais le script ne vous empeche pas de les faire\n"
 	echo -e "Si le fichier Makefile existe déjà, il est renommé en Makefile.back\n"
 else
+	OUTPUT=$1
+	while [ $# -gt 0 ]
+	do
+		if [ $1 = "libft" ]
+		then
+			LIBFT=OK
+		elif [ $1 = "lib" ]
+		then
+			LIB=OK
+		fi
+		shift 1
+	done
 	NAME=Makefile
 	if [ -f $NAME ]
 	then
@@ -21,14 +37,25 @@ else
 	~/scripts/header_42 $NAME "#"
 	echo -e "\nCPATH = srcs" >> $NAME
 	echo -e "HPATH = includes" >> $NAME
-	echo -e "LIBPATH = libft" >> $NAME
-	echo -e "\nNAME = $1" >> $NAME
-	echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "LIBPATH = libft" >> $NAME
+	fi
+	echo -e "\nNAME = $OUTPUT" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
+	fi
 	echo -e "\nCC = /usr/bin/gcc" >> $NAME
+	if [ "$LIB" = "OK" ]
+	then
+		echo -e "AR = /usr/bin/ar" >> $NAME
+		echo -e "RANLIB = /usr/bin/ranlib" >> $NAME
+	fi
 	echo -e "RM = /bin/rm" >> $NAME
 	echo -e "CFLAGS = -Wall -Wextra -Werror" >> $NAME
 
-	SRCS=$(ls srcs | grep .c)
+	SRCS=$(ls srcs | grep "\.c")
 	SRC="SRC = "
 	for FILE in $SRCS
 	do
@@ -45,16 +72,34 @@ else
 	echo -e "\nCFILES = \$(patsubst %,\$(CPATH)/%,\$(SRC))" >> $NAME
 	echo -e "OFILES = \$(patsubst %.c,%.o,\$(CFILES))" >> $NAME
 
-	echo -e "\nall: \$(LIB) \$(NAME)" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "\nall: \$(LIB) \$(NAME)" >> $NAME
+	else
+		echo -e "\nall: \$(NAME)" >> $NAME
+	fi
 
 	echo -e "\n\$(NAME): \$(OFILES)" >> $NAME
 	echo -e "\t@echo \"Building \$(NAME)\"" >> $NAME
-	echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
+	elif [ "$LIB" = "OK" ]
+	then
+		echo -e "\t@\$(AR) rc \$(NAME) \$^" >> $NAME
+		echo -e "\t@\$(RANLIB) \$(NAME)" >> $NAME
+	else
+		echo -e "\t@\$(CC) \$^ -o \$@" >> $NAME
+	fi
 
 	echo -e "\n%.o: %.c" >> $NAME
 	echo -e "\t@echo \"Creating file \$@\"" >> $NAME
-	echo -e "\t@\$(CC) -I \$(HPATH) -I \$(LIBPATH)/\$(HPATH) \$(CFLAGS) -c \$^ -o \$@" >> $NAME
-
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "\t@\$(CC) -I \$(HPATH) -I \$(LIBPATH)/\$(HPATH) \$(CFLAGS) -c \$^ -o \$@" >> $NAME
+	else
+		echo -e "\t@\$(CC) -I \$(HPATH) \$(CFLAGS) -c \$^ -o \$@" >> $NAME
+	fi
 	echo -e "\nclean:" >> $NAME
 	echo -e "\t@echo \"Deletion of building files\"" >> $NAME
 	echo -e "\t@\$(RM) -f \$(OFILES)" >> $NAME
@@ -65,14 +110,17 @@ else
 
 	echo -e "\nre: fclean all" >> $NAME
 
-	echo -e "\n\$(LIB):" >> $NAME
-	echo -e "\t@make -C \$(LIBPATH)" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "\n\$(LIB):" >> $NAME
+		echo -e "\t@make -C \$(LIBPATH)" >> $NAME
 
-	echo -e "\nlib: \$(LIB)" >> $NAME
+		echo -e "\nlib: \$(LIB)" >> $NAME
 
-	echo -e "\nlib.clean:" >> $NAME
-	echo -e "\t@make -C \$(LIBPATH) clean" >> $NAME
+		echo -e "\nlib.clean:" >> $NAME
+		echo -e "\t@make -C \$(LIBPATH) clean" >> $NAME
 
-	echo -e "\nlib.fclean:" >> $NAME
-	echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME
+		echo -e "\nlib.fclean:" >> $NAME
+		echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME
+	fi
 fi
