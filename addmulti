@@ -7,7 +7,7 @@ do
 	fi
 done
 git add $FILES
-git commit -m "Ajout de :$FILES"
+git commit -m "MaJ de :$FILES"
 if [ $1 = "master" ]
 then
 	git push origin master
