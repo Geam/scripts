@@ -94,7 +94,7 @@ else
 	then
 		if [ "$MLX" = "OK" ]
 		then
-			echo -e "\t@\$(CC) -L \$(LIBPATH) -L \$(MLXPATH) -lft -lmlx -lXext -LX11 \$^ -o \$@" >> $NAME
+			echo -e "\t@\$(CC) -L \$(LIBPATH) -L \$(MLXPATH) -lft -lmlx -lXext -lX11 \$^ -o \$@" >> $NAME
 		else
 			echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
 		fi
