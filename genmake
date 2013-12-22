@@ -12,11 +12,11 @@ then
 	echo -e "genmake nom_de_l'exécutable\n"
 	echo -e "Vous disposez des options suivantes :"
 	echo -e "libft : pour que le makefile utilise la libft"
+	echo -e "mlx   : pour que le makfile utilise les lib pour mlx"
 	echo -e "lib   : pour dire au makefile que vous souhaitez faire une librairie"
-	echo -e "/!\\ Ces deux options ne sont pas compatibles, mais le script ne vous empeche pas de les faire\n"
+	echo -e "/!\\ Cette derniere option n'est  pas compatibles avec les autres, mais le script ne vous empeche pas de les faire\n"
 	echo -e "Si le fichier Makefile existe déjà, il est renommé en Makefile.back\n"
 else
-	OUTPUT=$1
 	while [ $# -gt 0 ]
 	do
 		if [ $1 = "libft" ]
@@ -25,6 +25,11 @@ else
 		elif [ $1 = "lib" ]
 		then
 			LIB=OK
+		elif [ $1 = "mlx" ]
+		then
+			MLX=OK
+		else
+			OUTPUT=$1
 		fi
 		shift 1
 	done
@@ -40,6 +45,10 @@ else
 	if [ "$LIBFT" = "OK" ]
 	then
 		echo -e "LIBPATH = libft" >> $NAME
+	fi
+	if [ "$MLX" = "OK" ]
+	then
+		echo -e "MLXPATH = /usr/X11/lib" >> $NAME
 	fi
 	echo -e "\nNAME = $OUTPUT" >> $NAME
 	if [ "$LIBFT" = "OK" ]
@@ -83,7 +92,12 @@ else
 	echo -e "\t@echo \"Building \$(NAME)\"" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
+		if [ "$MLX" = "OK" ]
+		then
+			echo -e "\t@\$(CC) -L \$(LIBPATH) -L \$(MLXPATH) -lft -lmlx -lXext -LX11 \$^ -o \$@" >> $NAME
+		else
+			echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
+		fi
 	elif [ "$LIB" = "OK" ]
 	then
 		echo -e "\t@\$(AR) rc \$(NAME) \$^" >> $NAME
