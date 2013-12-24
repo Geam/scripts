@@ -137,6 +137,6 @@ else
 		echo -e "\nlib.fclean:" >> $NAME
 		echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME
 
-		echo -e "\nlib.re: fclean all" >> $NAME
+		echo -e "\nlib.re: lib.fclean lib" >> $NAME
 	fi
 fi
