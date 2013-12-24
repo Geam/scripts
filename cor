@@ -7,19 +7,16 @@ elif [ $1 == "mod" ]
 then
 	echo "Changement de module pour $2"
 	mv .zshrc .zshrc.old
-	cat .zshrc.old | sed 's/MODULE='$MOD_COR'/MODULE='$2'/' > .zshrc
-	source ~/.zshrc
+	cat .zshrc.old | sed 's/MOD_COR='$MOD_COR'/MOD_COR='$2'/' > .zshrc
 elif [ $1 == "proj" ]
 then
 	echo "Changement de projet pour $2"
 	mv .zshrc .zshrc.old
-	cat .zshrc.old | sed 's/PROJECT='$PROJ_COR'/PROJECT='$2'/' > .zshrc
-	source ~/.zshrc
+	cat .zshrc.old | sed 's/PROJ_COR='$PROJ_COR'/PROJ_COR='$2'/' > .zshrc
 elif [ $1 == 'all' ]
 then
 	echo "Changement de module pour $1"
 	echo "Changement de projet pour $2"
 	mv .zshrc .zshrc.old
-	cat .zshrc.old | sed 's/MODULE='$MOD_COR'/MODULE='$2'/' | sed 's/PROJECT='$PROJ_COR'/PROJECT='$3'/' > .zshrc
-	source ~/.zshrc
+	cat .zshrc.old | sed 's/MOD_COR='$MOD_COR'/MOD_COR='$2'/' | sed 's/PROJ_COR='$PROJ_COR'/PROJ_COR='$3'/' > .zshrc
 fi

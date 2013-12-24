@@ -12,7 +12,7 @@ then
 	echo -e "/!\\ N'oubliez pas de vérifier l'alignement des fonctions\n"
 	echo -e "Si le fichier existe déjà, il sera renommé en nom_de_fichier.h.back\n"
 else
-	FILES=$(find . -name "*.c" | grep -v "libft")
+	FILES=$(find . -name "*.c" | grep -v "libft\|\~")
 	HFILE=$1
 	if [ -f $HFILE ]
 	then
@@ -34,7 +34,7 @@ else
 	fi
 	for FILE in $FILES
 	do
-			cat $FILE | grep "(" | grep -v ";\|\twhile \|\tif \|sizeof\|static \|->\|=\|\tmain(" | sed 's/.*/&;/' >> $HFILE
+			cat $FILE | grep "(" | grep -v ";\|\twhile \|\tif \|sizeof\|static \|->\|=\|\tmain(\|\telse" | sed 's/.*/&;/' >> $HFILE
 	done
 	echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
 fi

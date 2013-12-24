@@ -64,7 +64,7 @@ else
 	echo -e "RM = /bin/rm" >> $NAME
 	echo -e "CFLAGS = -Wall -Wextra -Werror" >> $NAME
 
-	SRCS=$(ls srcs | grep "\.c")
+	SRCS=$(ls srcs | grep "\.c" | grep -v "\~")
 	SRC="SRC = "
 	for FILE in $SRCS
 	do

@@ -1,21 +1,16 @@
 #!/bin/bash
-if [ $1 = "master"]
-then
-	git add $2
-	if [[ -z $3 ]]
+for ARG in $@
+do
+	if [ $ARG != "master" ]
 	then
-		git commit -m \"$2" : MaJ du fichier "$2\"
-	else
-		git commit -m \"$2" : "$3\"
+		FILES="$FILES $ARG"
 	fi
+done
+git add $FILES
+git commit -m "MaJ de :$FILES"
+if [ $1 = "master" ]
+then
 	git push origin master
 else
-	git add $1
-	if [[ -z $2 ]]
-	then
-		git commit -m \"$1" : MaJ du fichier "$1\"
-	else
-		git commit -m \"$1" : "$2\"
-	fi
 	git push
 fi
