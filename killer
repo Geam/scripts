@@ -1,0 +1,5 @@
+#!/bin/sh
+ps
+echo "PID to kill : " | tr -d '\n'
+read PID
+kill $PID
