@@ -18,13 +18,6 @@ then
         START_LINE_SPE=';**'
         END_LINE_SPE='**;'
 fi
-elif [[ $2 = "\"" ]]
-then
-	START_LINE='\"  '
-        END_LINE='  \"'
-        START_LINE_SPE='\"**'
-        END_LINE_SPE='**\"'
-fi
 FILE=$1
 
 LINE_1='***********************************************'
