@@ -17,6 +17,9 @@ then
 	echo -e "/!\\ Cette derniere option n'est  pas compatibles avec les autres, mais le script ne vous empeche pas de les faire\n"
 	echo -e "Si le fichier Makefile existe déjà, il est renommé en Makefile.back\n"
 else
+#
+# Récupération des paramètres
+#
 	while [ $# -gt 0 ]
 	do
 		if [ $1 = "libft" ]
@@ -38,10 +41,17 @@ else
 	then
 		mv $NAME $NAME.back
 	fi
+#
+# Création du fichier avec le header
+#
 	touch $NAME
 	~/scripts/header_42 $NAME "#"
+#
+# Écriture des répertoires
+#
 	echo -e "\nCPATH = srcs" >> $NAME
 	echo -e "HPATH = includes" >> $NAME
+	echo -e "OPATH = obj" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
 		echo -e "LIBPATH = libft" >> $NAME
@@ -50,80 +60,129 @@ else
 	then
 		echo -e "MLXPATH = /usr/X11/lib" >> $NAME
 	fi
+#
+# Écriture des chemins vers les éxécutables
+#
+	echo -e "\nCC = /usr/bin/gcc" >> $NAME
+	echo -e "MKDIR = /bin/mkdir" >> $NAME
+	echo -e "RM = /bin/rm" >> $NAME
+#
+# Écriture des flags
+#
+	CFLAGS="-Wall -Wextra -Werror -I \$(HPATH)"
+	if [ "$LIBFT" = "OK" ]
+	then
+		CFLAGS="$CFLAGS -I \$(LIBPATH)/\$(HPATH)"
+	fi
+	echo -e "CFLAGS = $CFLAGS" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -L \$(LIBPATH) -lft"
+	fi
+	if [ "$MLX" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -L \$(MLXPATH) -lmlx -lXext -lX11"
+	fi
+	echo -e "LDFLAGS =$LDFLAGS" >> $NAME
+#
+# Écriture des noms
+#
 	echo -e "\nNAME = $OUTPUT" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
 		echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
 	fi
-	echo -e "\nCC = /usr/bin/gcc" >> $NAME
 	if [ "$LIB" = "OK" ]
 	then
 		echo -e "AR = /usr/bin/ar" >> $NAME
 		echo -e "RANLIB = /usr/bin/ranlib" >> $NAME
 	fi
-	echo -e "RM = /bin/rm" >> $NAME
-	echo -e "CFLAGS = -Wall -Wextra -Werror" >> $NAME
-
+#
+# Récupérations des sources
+#
+	HEADERS=$(ls includes | grep "\.h" | grep -v "\~")
+	HEADER="HEADER = "
+	for FILE in $HEADERS
+	do
+		if [[ -z $MARK ]]
+		then
+			HEADER="$HEADER$FILE"
+			MARK="done"
+		else
+			HEADER="$HEADER ∑\n\t$FILE"
+		fi
+	done
+	echo -e "\n$HEADER" | sed 's/∑/\\/g'>> $NAME
 	SRCS=$(ls srcs | grep "\.c" | grep -v "\~")
 	SRC="SRC = "
 	for FILE in $SRCS
 	do
-		if [[ -z $MARK ]]
+		if [[ -z $MARK2 ]]
 		then
 			SRC="$SRC$FILE"
-			MARK="done"
+			MARK2="done"
 		else
 			SRC="$SRC ∑\n\t$FILE"
 		fi
 	done
 	echo -e "\n$SRC" | sed 's/∑/\\/g'>> $NAME
-
-	echo -e "\nCFILES = \$(patsubst %,\$(CPATH)/%,\$(SRC))" >> $NAME
-	echo -e "OFILES = \$(patsubst %.c,%.o,\$(CFILES))" >> $NAME
-
+#
+# Composition des chemins
+#
+	echo -e "\nCFILES = \$(patsubst %,\$(CPATH)/%, \$(SRC))" >> $NAME
+	echo -e "OFILES = \$(patsubst %.c,\$(OPATH)/%.o, \$(SRC))" >> $NAME
+#
+# Définition de la règles all
+#
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "\nall: \$(LIB) \$(NAME)" >> $NAME
+		echo -e "\nall: \$(OPATH) \$(LIB) \$(NAME)" >> $NAME
 	else
-		echo -e "\nall: \$(NAME)" >> $NAME
+		echo -e "\nall: \$(OPATH) \$(NAME)" >> $NAME
 	fi
-
+#
+# Définition de la règles $(NAME)
+#
 	echo -e "\n\$(NAME): \$(OFILES)" >> $NAME
 	echo -e "\t@echo \"Building \$(NAME)\"" >> $NAME
-	if [ "$LIBFT" = "OK" ]
-	then
-		if [ "$MLX" = "OK" ]
-		then
-			echo -e "\t@\$(CC) -L \$(LIBPATH) -L \$(MLXPATH) -lft -lmlx -lXext -lX11 \$^ -o \$@" >> $NAME
-		else
-			echo -e "\t@\$(CC) -L \$(LIBPATH) -lft \$^ -o \$@" >> $NAME
-		fi
-	elif [ "$LIB" = "OK" ]
+	if [ "$LIB" = "OK" ]
 	then
 		echo -e "\t@\$(AR) rc \$(NAME) \$^" >> $NAME
 		echo -e "\t@\$(RANLIB) \$(NAME)" >> $NAME
 	else
-		echo -e "\t@\$(CC) \$^ -o \$@" >> $NAME
+		echo -e "\t@\$(CC) \$(LDFLAGS) \$^ -o \$@" >> $NAME
 	fi
-
-	echo -e "\n%.o: %.c" >> $NAME
+#
+# Définition de la règle %.o
+#
+	echo -e "\n\$(OPATH)/%.o: \$(CPATH)/%.c \$(HFILES)" >> $NAME
 	echo -e "\t@echo \"Creating file \$@\"" >> $NAME
-	if [ "$LIBFT" = "OK" ]
-	then
-		echo -e "\t@\$(CC) -I \$(HPATH) -I \$(LIBPATH)/\$(HPATH) \$(CFLAGS) -c \$^ -o \$@" >> $NAME
-	else
-		echo -e "\t@\$(CC) -I \$(HPATH) \$(CFLAGS) -c \$^ -o \$@" >> $NAME
-	fi
+	echo -e "\t@\$(CC) \$(CFLAGS) -c \$< -o \$@" >> $NAME
+#
+# Définition de la règle clean
+#
 	echo -e "\nclean:" >> $NAME
 	echo -e "\t@echo \"Deletion of building files\"" >> $NAME
-	echo -e "\t@\$(RM) -f \$(OFILES)" >> $NAME
-
+	echo -e "\t@\$(RM) -rf \$(OPATH)" >> $NAME
+#
+# Définition de la règle fclean
+#
 	echo -e "\nfclean: clean" >> $NAME
 	echo -e "\t@echo \"Deletion of \$(NAME)\"" >> $NAME
 	echo -e "\t@\$(RM) -f \$(NAME)" >> $NAME
-
+#
+# Définition de la règle re
+#
 	echo -e "\nre: fclean all" >> $NAME
-
+#
+# Définition de la règle $(OPATH)
+#
+	echo -e "\n\$(OPATH):" >> $NAME
+	echo -e "\t@echo \"Creation of building directory\"" >> $NAME
+	echo -e "\t@\$(MKDIR) \$(OPATH)" >> $NAME
+#
+# Définition des règles pour la libft
+#
 	if [ "$LIBFT" = "OK" ]
 	then
 		echo -e "\n\$(LIB):" >> $NAME
