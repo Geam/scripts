@@ -11,9 +11,10 @@ then
 	echo -e "\nPuis :"
 	echo -e "genmake nom_de_l'exécutable\n"
 	echo -e "Vous disposez des options suivantes :"
-	echo -e "libft : pour que le makefile utilise la libft"
-	echo -e "mlx   : pour que le makfile utilise les lib pour mlx"
-	echo -e "lib   : pour dire au makefile que vous souhaitez faire une librairie"
+	echo -e "libft   : pour que le makefile utilise la libft"
+	echo -e "mlx     : pour que le makefile utilise les lib pour mlx"
+	echo -e "termcap : pour que le makefile utilise la lib termcap"
+	echo -e "lib     : pour dire au makefile que vous souhaitez faire une librairie"
 	echo -e "/!\\ Cette derniere option n'est  pas compatibles avec les autres, mais le script ne vous empeche pas de les faire\n"
 	echo -e "Si le fichier Makefile existe déjà, il est renommé en Makefile.back\n"
 else
@@ -31,6 +32,9 @@ else
 		elif [ $1 = "mlx" ]
 		then
 			MLX=OK
+		elif [ $1 = "termcap" ]
+		then
+			TERMCAP=OK
 		else
 			OUTPUT=$1
 		fi
@@ -82,6 +86,10 @@ else
 	if [ "$MLX" = "OK" ]
 	then
 		LDFLAGS="$LDFLAGS -L \$(MLXPATH) -lmlx -lXext -lX11"
+	fi
+	if [ "$TERMCAP" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -l termcap"
 	fi
 	echo -e "LDFLAGS =$LDFLAGS" >> $NAME
 #
