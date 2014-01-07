@@ -137,7 +137,8 @@ else
 #
 # Composition des chemins
 #
-	echo -e "\nCFILES = \$(patsubst %,\$(CPATH)/%, \$(SRC))" >> $NAME
+	echo -e "\nHFILES = \$(patsubst %,\$(HPATH)/%, \$(HEADER))" >> $NAME
+	echo -e "CFILES = \$(patsubst %,\$(CPATH)/%, \$(SRC))" >> $NAME
 	echo -e "OFILES = \$(patsubst %.c,\$(OPATH)/%.o, \$(SRC))" >> $NAME
 #
 # Définition de la règles all
