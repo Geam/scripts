@@ -4,11 +4,13 @@ do
 	if [ $ARG != "master" ]
 	then
 		FILES="$FILES $ARG"
+	elif
+		MASTER="OK"
 	fi
 done
 git add $FILES
 git commit -m "MaJ de :$FILES"
-if [ $1 = "master" ]
+if [ "$MASTER" = "OK" ]
 then
 	git push origin master
 else
