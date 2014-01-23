@@ -4,7 +4,7 @@ do
 	if [ $ARG != "master" ]
 	then
 		FILES="$FILES $ARG"
-	elif
+	else
 		MASTER="OK"
 	fi
 done

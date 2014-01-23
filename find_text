@@ -2,9 +2,12 @@
 FILES=$(ls)
 for FILE in $FILES
 do
-	RESULT=$(cat $FILE | grep "$1")
-	if [[ -n $RESULT ]]
+	if [ -f $FILE ]
 	then
-		echo $FILE
+		RESULT=$(cat $FILE | grep "$1")
+		if [[ -n $RESULT ]]
+		then
+			echo $FILE
+		fi
 	fi
 done
