@@ -67,6 +67,7 @@ else
 	if [ "$MLX" = "OK" ]
 	then
 		echo -e "MLXPATH = /usr/X11/lib" >> $NAME
+		echo -e "XPATH = /usr/X11/include/X11" >> $NAME
 	fi
 #
 # Écriture des chemins vers les éxécutables
@@ -77,12 +78,16 @@ else
 #
 # Écriture des flags
 #
-	CFLAGS="-Wall -Wextra -Werror -I \$(HPATH)"
+	CFLAGS=" -Wall -Wextra -Werror -I \$(HPATH)"
 	if [ "$LIBFT" = "OK" ]
 	then
 		CFLAGS="$CFLAGS -I \$(LIBPATH)/\$(HPATH)"
 	fi
-	echo -e "CFLAGS = $CFLAGS" >> $NAME
+	if [ "$MLX" = "OK" ]
+	then
+		CFLAGS="$CFLAGS -I \$(XPATH)"
+	fi
+	echo -e "CFLAGS =$CFLAGS" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
 		LDFLAGS="$LDFLAGS -L \$(LIBPATH) -lft"
@@ -99,7 +104,7 @@ else
 	then
 		LDFLAGS="$LDFLAGS -lm"
 	fi
-	echo -e "LDFLAGS = $LDFLAGS" >> $NAME
+	echo -e "LDFLAGS =$LDFLAGS" >> $NAME
 #
 # Écriture des noms
 #
