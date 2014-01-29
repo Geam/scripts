@@ -4,7 +4,7 @@ for FILE in $FILES
 do
 	if [ -f $FILE ]
 	then
-		RESULT=$(cat $FILE | grep "$1")
+		RESULT=$(cat $FILE 2> /dev/null | grep "$1")
 		if [[ -n $RESULT ]]
 		then
 			echo $FILE
