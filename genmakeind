@@ -1,0 +1,256 @@
+#!/bin/bash
+ft_help ()
+{
+	echo "+-_-_-_-_-_-_-_-_-_-_-_-_+"
+	echo "| Utilisation de genmake |"
+	echo "+-_-_-_-_-_-_-_-_-_-_-_-_+"
+	echo -e "\nIl faut se placer à la racine du projet tel que suit :"
+	echo "./auteur"
+	echo "./srcs/*.c"
+	echo "./includes/*.h"
+	echo -e "\nPuis :"
+	echo -e "genmakeind nom_de_l'exécutable\n"
+	echo -e "Vous disposez des options suivantes :"
+	echo -e "libft   : pour que le makefile utilise la libft"
+	echo -e "mlx     : pour que le makefile utilise les lib pour mlx"
+	echo -e "termcap : pour que le makefile utilise la lib termcap"
+	echo -e "math    : pour que le makefile utilise la lib math"
+	echo -e "lib     : pour dire au makefile que vous souhaitez faire une librairie"
+	echo -e "/!\\ Cette derniere option n'est  pas compatibles avec les autres, mais le script ne vous empeche pas de les faire\n"
+	echo -e "Si le fichier Makefile existe déjà, il est renommé en Makefile.back\n"
+}
+
+get_param ()
+{
+	while [ $# -gt 0 ]
+	do
+		if [ $1 = "libft" ]
+		then
+			LIBFT=OK
+		elif [ $1 = "lib" ]
+		then
+			LIB=OK
+		elif [ $1 = "mlx" ]
+		then
+			MLX=OK
+		elif [ $1 = "termcap" ]
+		then
+			TERMCAP=OK
+		elif [ $1 = "math" ]
+		then
+			MATH=OK
+		else
+			OUTPUT=$1
+		fi
+		shift 1
+	done
+	NAME=Makefile
+	if [ -f $NAME ]
+	then
+		mv $NAME $NAME.back
+	fi
+}
+
+gen_file ()
+{
+	touch $NAME
+	~/scripts/header_42 $NAME "#"
+}
+
+write_dir ()
+{
+	echo -e "\nCPATH = srcs" >> $NAME
+	echo -e "HPATH = includes" >> $NAME
+	echo -e "OPATH = obj" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "LIBPATH = libft" >> $NAME
+	fi
+	if [ "$MLX" = "OK" ]
+	then
+		echo -e "MLXPATH = /usr/X11/lib" >> $NAME
+		echo -e "XPATH = /usr/X11/include/X11" >> $NAME
+	fi
+}
+
+write_exec_path ()
+{
+	echo -e "\nCC = /usr/bin/gcc" >> $NAME
+	echo -e "MKDIR = /bin/mkdir" >> $NAME
+	echo -e "RM = /bin/rm" >> $NAME
+}
+
+write_flags ()
+{
+	CFLAGS=" -Wall -Wextra -Werror -I \$(HPATH)"
+	if [ "$LIBFT" = "OK" ]
+	then
+		CFLAGS="$CFLAGS -I \$(LIBPATH)/\$(HPATH)"
+	fi
+	if [ "$MLX" = "OK" ]
+	then
+		CFLAGS="$CFLAGS -I \$(XPATH)"
+	fi
+	echo -e "CFLAGS =$CFLAGS" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -L \$(LIBPATH) -lft"
+	fi
+	if [ "$MLX" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -L \$(MLXPATH) -lmlx -lXext -lX11"
+	fi
+	if [ "$TERMCAP" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -ltermcap"
+	fi
+	if [ "$MATH" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -lm"
+	fi
+	echo -e "LDFLAGS =$LDFLAGS" >> $NAME
+}
+
+write_name ()
+{
+	echo -e "\nNAME = $OUTPUT" >> $NAME
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
+	fi
+	if [ "$LIB" = "OK" ]
+	then
+		echo -e "AR = /usr/bin/ar" >> $NAME
+		echo -e "RANLIB = /usr/bin/ranlib" >> $NAME
+	fi
+}
+
+get_sources ()
+{
+	SRCS=$(ls srcs | grep "\.c" | grep -v "\~")
+	SRC="SRC = "
+	for FILE in $SRCS
+	do
+		if [[ -z $MARK2 ]]
+		then
+			SRC="$SRC$FILE"
+			MARK2="done"
+		else
+			SRC="$SRC ∑\n\t$FILE"
+		fi
+	done
+	echo -e "\n$SRC" | sed 's/∑/\\/g'>> $NAME
+}
+
+write_path_arrangement ()
+{
+	echo -e "\nHFILES = \$(patsubst %,\$(HPATH)/%, \$(HEADER))" >> $NAME
+	echo -e "CFILES = \$(patsubst %,\$(CPATH)/%, \$(SRC))" >> $NAME
+	echo -e "OFILES = \$(patsubst %.c,\$(OPATH)/%.o, \$(SRC))" >> $NAME
+}
+
+write_rule_all ()
+{
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "\nall: \$(OPATH) \$(LIB) \$(NAME)" >> $NAME
+	else
+		echo -e "\nall: \$(OPATH) \$(NAME)" >> $NAME
+	fi
+}
+
+write_rule_name ()
+{
+	echo -e "\n\$(NAME): \$(OFILES)" >> $NAME
+	echo -e "\t@echo \"Building \$(NAME)\"" >> $NAME
+	if [ "$LIB" = "OK" ]
+	then
+		echo -e "\t@\$(AR) rc \$(NAME) \$^" >> $NAME
+		echo -e "\t@\$(RANLIB) \$(NAME)" >> $NAME
+	else
+		echo -e "\t@\$(CC) \$(LDFLAGS) \$^ -o \$@" >> $NAME
+	fi
+}
+
+write_rule_obj ()
+{
+	for RULE in $SRCS
+	do
+		echo -en "\n\$(OPATH)/" >> $NAME
+		gcc -MM srcs/$RULE -I includes -I libft/includes >> $NAME
+		echo -e "\t@echo \"Creating file \$@\"" >> $NAME
+		echo -e "\t@\$(CC) \$(CFLAGS) -c \$< -o \$@" >> $NAME
+	done
+}
+
+write_rule_clean ()
+{
+	echo -e "\nclean:" >> $NAME
+	echo -e "\t@echo \"Deletion of building files\"" >> $NAME
+	echo -e "\t@\$(RM) -rf \$(OPATH)" >> $NAME
+}
+
+write_rule_fclean ()
+{
+	echo -e "\nfclean: clean" >> $NAME
+	echo -e "\t@echo \"Deletion of \$(NAME)\"" >> $NAME
+	echo -e "\t@\$(RM) -f \$(NAME)" >> $NAME
+}
+
+write_rule_re ()
+{
+	echo -e "\nre: fclean all" >> $NAME
+}
+
+write_rule_opath ()
+{
+	echo -e "\n\$(OPATH):" >> $NAME
+	echo -e "\t@echo \"Creation of building directory\"" >> $NAME
+	echo -e "\t@\$(MKDIR) \$(OPATH)" >> $NAME
+}
+
+write_rule_for_libft ()
+{
+	if [ "$LIBFT" = "OK" ]
+	then
+		echo -e "\n\$(LIB):" >> $NAME
+		echo -e "\t@make -C \$(LIBPATH)" >> $NAME
+
+		echo -e "\nlib: \$(LIB)" >> $NAME
+
+		echo -e "\nlib.clean:" >> $NAME
+		echo -e "\t@make -C \$(LIBPATH) clean" >> $NAME
+
+		echo -e "\nlib.fclean:" >> $NAME
+		echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME
+
+		echo -e "\nlib.re: lib.fclean lib" >> $NAME
+	fi
+}
+
+main ()
+{
+	if [ $# -eq 0 ] || [ "$1" == "help" ]
+	then
+		ft_help
+	else
+		get_param $*
+		gen_file
+		write_dir
+		write_exec_path
+		write_flags
+		write_name
+		get_sources
+		write_path_arrangement
+		write_rule_all
+		write_rule_name
+		write_rule_obj
+		write_rule_clean
+		write_rule_fclean
+		write_rule_re
+		write_rule_opath
+		write_rule_for_libft
+	fi
+}
+
+main $*

@@ -1,0 +1,35 @@
+#!/bin/bash
+if [ -z $1 ]
+then
+	cd srcs 2> /dev/null
+	FILES=$(ls | grep ".c" | grep -v "libft\|\~")
+	for FILE in $FILES
+	do
+		HFILE=$(echo $FILE | cut -d '/' -f 2 | sed 's/\.c/\.h/')
+		if [ -f $HFILE ]
+		then
+			mv $HFILE $HFILE.back
+		fi
+		touch $HFILE
+		~/scripts/header_42 $HFILE "/"
+		DEFINE=$(echo $HFILE | tr "." "_" | tr a-z A-Z)
+		echo -e "\n#ifndef "$DEFINE"\n# define "$DEFINE"\n" >> $HFILE
+		cat $FILE | grep "(" | grep -v ";\|\twhile \|\tif \|sizeof\|static \|->\|=\|\tmain(\|\telse\|\t|" | sed 's/.*/&;/' >> $HFILE
+		echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
+	done
+else
+	FILE=$(basename $1)
+	DIR=$(dirname $1)
+	cd $DIR
+	HFILE=$(echo $FILE | cut -d '/' -f 2 | sed 's/\.c/\.h/')
+	if [ -f $HFILE ]
+	then
+		mv $HFILE $HFILE.back
+	fi
+	touch $HFILE
+	~/scripts/header_42 $HFILE "/"
+	DEFINE=$(echo $HFILE | tr "." "_" | tr a-z A-Z)
+	echo -e "\n#ifndef "$DEFINE"\n# define "$DEFINE"\n" >> $HFILE
+	cat $FILE | grep "(" | grep -v ";\|\twhile \|\tif \|sizeof\|static \|->\|=\|\tmain(\|\telse\|\t|" | sed 's/.*/&;/' >> $HFILE
+	echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
+fi
