@@ -230,11 +230,16 @@ write_rule_for_libft ()
 
 main ()
 {
-	if [ $# -eq 0 ] || [ "$1" == "help" ]
+	if [ "$1" == "help" ]
 	then
 		ft_help
 	else
-		get_param $*
+		if [ -f mconf ]
+		then
+			get_param `cat mconf`
+		else
+			get_param $*
+		fi
 		gen_file
 		write_dir
 		write_exec_path
