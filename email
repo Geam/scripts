@@ -1,0 +1,16 @@
+#!/bin/sh
+while [ -z "$TO" ]
+do
+	echo "To : "
+	read "TO"
+done
+echo "Cc : "
+read "CC"
+CC=$(echo $CC | tr ' ' ',')
+while [ -z "$SUBJECT" ]
+do
+	echo "Subject : "
+	read "SUBJECT"
+done
+echo "Message : "
+/usr/bin/mail -s "$SUBJECT" -c "$CC" "$TO" -f "$MAIL"

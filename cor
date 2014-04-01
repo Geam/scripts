@@ -1,5 +1,5 @@
 #!/bin/bash
-cd ~
+cd ~/dotfiles
 if [ $# == "0" ]
 then
 	echo -e "Module : $MOD_COR\nProjet : $PROJ_COR"

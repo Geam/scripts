@@ -1,0 +1,171 @@
+#!/bin/sh
+
+#v0.46
+
+## vérifier les en-tête 42 sur les 11 première lignes dès le premier caractère
+## vérifier l'appartenance du header
+## vérifier les fichiers autorisés dans le dossier de rendu
+## ajouter -q [=quiet] pout que grep n'affiche pas les messages inutiles
+
+GREP_OPTIONS=
+FOLDER='.'
+
+alias SUPP_MAKEFILE='$GREP -v "^Makefile"'
+alias SUPP_MAIN='$GREP -v "^main.c"'
+#alias SUPP_HEADER='$GREP -v "^\/\*.{76}\*\/$"'
+#alias SUPP_HEADER='$GREP -v "^\/\*.\{76\}\*\/$"'
+alias SUPP_COMMENTS='$GREP -v "^\*\*"'
+alias SUPP_GREP='$GREP -v "^grep:"'
+alias SUPP_IS_DIRECTORY='$GREP -v "^grep: .*: Is a directory$"'
+alias SUPP_BINARY_FILE='$GREP -v "^Binary file * matches$"'
+#alias SUPP_ENDIF=
+GREP='grep'
+
+function			ft_grep {
+					grep -nIR "$1" $FOLDER | $GREP -v "^grep:" | $GREP -v "\.\/\.git/"
+}
+
+#function			category {
+#echo "\033[38;5;36m\n $1:\033[0m"
+#}
+#function                check {
+#echo "\033[38;5;30m- Checking $1...\033[0m"
+#}
+
+echo "- Contrôle de la norme - version longue"
+#echo "\n-- pas d'espaces derrière un appel de fonction --\n"
+#func_sys_list=('sizeof' 'free' 'exit' 'perror' 'strerror' 'open' 'read' 'write' 'close' 'malloc')
+## attention il faudrait retirer les "if ", "while " et "return ", mais ferait
+## supprimer des fauts éventuelles...
+#ft_grep ". ("
+#for var in ${func_list[*]} ${func_sys_list[*]}
+#do
+#	ft_grep "$var ("
+#done
+#echo "\n-- bien caster : pas d'espace après les opérateurs unaires --\n"
+#ft_grep "(*) "
+#echo "\n-- indentation à zéro des accolades d'ouverture et fermeture de fonctions --\n"
+#ft_grep "\{" | $GREP -v "^\t*\{$"
+#ft_grep "\}" | $GREP -v "^\t*\}$"
+#echo "\n-- dernière ligne vide -- vérifier visuellement -- vérifie manuellement les aligements des fonctions multiples et les __static__ des fonctions internes --\n"
+#$GREP -nI -A 1 "^\}$" $FOLDER | cat -e
+echo "-- lecture des commentaires, ils doivent être anglophones --"
+ft_grep "\/\*" | $GREP -v ":\/\*$" | $GREP -v "\/\*.\{76\}\*\/" | $GREP -v "endif \/\* \!"
+ft_grep "^\*\*" | $GREP -v "\/\*.*\*\/" | $GREP -v ":\/\*$" | $GREP -v ":\*\/$"
+ft_grep "\*\/" | $GREP -v ":\*\/$" | $GREP -v "\/\*.\{76\}\*\/" | $GREP -v "endif \/\* \!"
+echo "-- pas d'include inutil -- conseil : les include système après les includes locaux -- vérifier manuellement"
+ft_grep "include"
+echo "- Contrôle de la norme - version courte"
+echo "-- doubles espaces --"
+ft_grep "  "  | $GREP -v "\/\*.*\*\/" | $GREP -v "^Makefile"
+echo "-- pas de define en dehors des header --"
+ft_grep "define" | $GREP -v "^[a-zA-Z\/_]*.h"
+echo "-- test des :\/ et :\* pour que les tests suivants soient valides --"
+ft_grep ":\*"
+ft_grep ":\/"
+echo "-- les étoiles des pointeurs sont à coller au paramètre (peu importe pour le type) --"
+ft_grep "\* " | $GREP -v "\/\*.*\*\/" | $GREP -v ":\/\*$" | $GREP -v ":\*\*" | $GREP -v ":\*\/$"
+echo "-- Contrôle des espaces après mots-clefs du C --"
+keyword_list=('if' 'while' 'return')
+for var in ${keyword_list[*]}
+do
+	ft_grep "$var" | $GREP -v "$var (" | $GREP -v "return ;" | $GREP -v "break ;" | $GREP -v "ifndef " | $GREP -v "endif \/\* \!" | $GREP -v ":\*\*"
+done
+echo "-- else seul sur sa ligne --"
+ft_grep "else" | $GREP "^\t*else$"
+echo "-- pas plus de quatre variables par fonction --"
+ft_grep ",.*,.*,.*," | $GREP -v "mlx_pixel_put"
+echo "-- espaces ou tabulation en fin de ligne --"
+ft_grep " |\t$"
+ft_grep "\t$" #| $C_MAKEFILE
+echo "-- espaces en début de ligne --"
+ft_grep "^ "
+echo "-- espaces mélangés avec tab --"
+ft_grep " \\t"
+ft_grep "\\t "
+echo "-- point-virgules précédés d'un espaces --"
+ft_grep " ;" | $GREP -v "return ;" | $GREP -v "break ;"
+echo "-- point-virgules précédés d'un tab --"
+ft_grep "\t;"
+echo "-- doubles déclarations sur la même ligne --"
+ft_grep ";.*;"
+#vérifier
+#nm libft.a | grep "U _" | grep -v "_ft\|_write\|free\|malloc"
+echo "-- usage correcte des espaces autour des virgules --"
+ft_grep "," | $GREP -v ", " | $GREP -v ":\*\*" #suppresion des lignes de commentaires
+#echo "
+#-- espacements correctes autour des opérateurs -- non fonctionnel --
+#"
+#operator_list=('+' '-' '*' '\/' '%' '?' ':' '==' '>' '<' '<=' '>=' '-=' '+=' '&&' '||')
+#for var in ${operator_list[*]}
+#do
+#	ft_grep "[^ ]$var" | $GREP -v "\/\*" | $SUPP_MAKEFILE
+#	ft_grep "$var[^ ]" | $GREP -v "\/\*" | $SUPP_MAKEFILE
+#done
+# ne mmarche pas
+echo "-- ternaires à n'utiliser que pour les assignations --"
+ft_grep "?.*:"
+echo "-- opérateurs en fin de ligne --"
+ft_grep "||$"
+ft_grep "&&$"
+echo "-- lignes de plus de 80 caractères --"
+ft_grep ".\{81,\}"
+echo "-- recherche des déclarations/typages mal faits --"
+type_list=('void' 'char' 'int' 'long' 'size_t' 'float' 'unsigned' 'struct' 'enum' 'union')
+for var in ${type_list[*]}
+do
+	for func in ${func_list[*]}
+	do
+		ft_grep "^$var" | $GREP -v "^libft.h" | $GREP -v "ft_$func" | $GREP -v "struct .*;$"
+				ft_grep "$var " | $GREP -v "ft_$func" #non-fonctionnel
+				done
+done
+#Norme : 'lors de la déclaration d'une variable type struct, ne mettre qu'un espace après struct : "struct s_buf [\t] toto;"'
+#incomplet : ne trouve pas les variables déclaréé avec un espace
+#quid 'const', 'restrict'
+
+echo "-- fonctions interdites --"
+func_list=('strlen' 'strdup' 'strcpy' 'strncpy' 'strcat' 'strncat' 'strlcat' \
+					'strchr' 'strrchr' 'strstr' 'strnstr' 'strcmp' 'strncmp' 'atoi' 'isalpha' \
+					'isdigit' 'isalnum' 'isascii' 'isprint' 'toupper' 'tolower' 'bzero' \
+					'memset' 'memcpy' 'memccpy' 'memmove' 'memchr' 'memcmp' 'printf' 'putchar' \
+					'putstr' 'putendl' 'putnbr' 'putchar_fd' 'putstr_fd' 'putendl_fd' \
+					'putnbr_fd' 'memalloc' 'memdel' 'strnew' 'strdel' 'strclr' 'striter' \
+					'striteri' 'strmap' 'strmapi' 'strequ' 'strnequ' 'strsub' 'strjoin' \
+					'strtrim' 'strsplit' 'itoa' 'lstnew' 'lstdelone' 'lstdel' 'lstadd'
+					'lstiter' 'lstmap' 'va_start' 'va_arg' 'va_end' 'strerror' 'perror' 'exit')
+for var in ${func_list[*]}
+do
+	ft_grep "\t$var" | SUPP_MAKEFILE
+	ft_grep " $var" | SUPP_MAKEFILE
+done
+echo "-- free bien toutes les allocations -- pas de grep : vérifier avec une boucle while (1); en fin de main et la commande leaks exécutable --"
+#malloc_list=('malloc' 'strdup' 'strjoin' 'memalloc' 'strsub' 'get_next_line' 'strsplit')
+#for var in ${malloc_list[*]}
+#do
+#	ft_grep "$var"
+#done
+#ft_grep "free"
+echo "-- caster tous les malloc, sauf pour (void *) -- attention aux autres casts oubliés... --"
+ft_grep "= malloc"
+echo "-- pas de parenthèses vide sans 'void' dans la déclaration de fonction --"
+ft_grep "()"
+#echo "-- affichage des static --" ## plus d'intérêt si hors consigne
+#ft_grep "^static"
+echo "- header -"
+echo "-- attention à ne pas utiliser strings.h --"
+ft_grep "strings"
+echo "-- commentaire sur une seule ligne --"
+ft_grep "\/\*.*\*\/" | $GREP -v "\/\*.\{76\}\*\/" | $GREP -v "endif \/\* \!"
+echo "-- commentaire en C++ --"
+ft_grep "\/\/"
+echo "-- pas de wildcard dans le Makefile --"
+$GREP "\*" MAKEFILE | $GREP -v "#.*\*"
+echo "-- afficher le fichier auteur --"
+cat -e auteur
+## vérifier les sauts de ligne multiples et seulement entre déclarations de variables et les opérations
+#echo "-- pas de macro multilignes --"
+#ft_grep "#.*define" | $GREP -v "\\"
+#|^\*\*|\*\/" #| $SUPP_HEADER
+#grep "*" $FOLDERf | gep -v "" | SUPP_MAIN
+#grep "/*" $FOLDER | SUPP_MAIN # ajouter les lignes suivantes pour vérifier l'usage des ** et */

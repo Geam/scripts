@@ -1,0 +1,49 @@
+#!/bin/sh
+for FILE in $*
+do
+	norminette \
+		--CheckAlignement \
+		--CheckBeginningOfLine \
+		--CheckBlock \
+		--CheckBracketSpacing \
+		--CheckCase \
+		--CheckColumnLength \
+		--CheckCommentsFormat \
+		--CheckCommentsPlacement \
+		--CheckControlStructure \
+		--CheckCppComment \
+		--CheckDeclarationCount \
+		--CheckDeclarationInstanciation \
+		--CheckDeclarationPlacement \
+		--CheckDefine \
+		--CheckDoubleInclusion \
+		--CheckEndOfLine \
+		--CheckFilename \
+		--CheckForbiddenKeyword \
+		--CheckForbiddenSourceHeader \
+		--CheckFunctionNumber \
+		--CheckGlobalTypePrefixName \
+		--CheckInclude \
+		--CheckIncludesBeforeFirstInstruction \
+		--CheckIndentationInsideFunction \
+		--CheckIndentationOutsideFunction \
+		--CheckKeywordSpacing \
+		--CheckMultipleSpaces \
+		--CheckNamedParameters \
+		--CheckNestedTernary \
+		--CheckNoArgFunction \
+		--CheckNumberOfLine \
+		--CheckOneInstructionPerLine \
+		--CheckOperatorSpacing \
+		--CheckParametersNumber \
+		--CheckParentSpacing \
+		--CheckPreprocessorIndentation \
+		--CheckReturnParentheses \
+		--CheckSeperationChar \
+		--CheckSpaceBetweenFunctions \
+		--CheckTernaryOperator \
+		--CheckTopCommentHeader \
+		--CheckTypeDeclarationSpacing \
+		--CheckTypePrefixName \
+		--CheckUnaryOperator $FILE
+done

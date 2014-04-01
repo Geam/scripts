@@ -1,18 +1,16 @@
 #!/bin/sh
-cd ~
+cd ~/dotfiles
 if [ $# == "0" ]
 then
 	echo "Module : $MODULE\nProjet : $PROJECT"
 elif [ $1 == "mod" ]
 then
 	echo "Changement de module pour $2"
-	mv .zshrc .zshrc.old
-	cat .zshrc.old | sed 's/MODULE='$MODULE'/MODULE='$2'/' > .zshrc
+	sed -i ".old" 's/MODULE='$MODULE'/MODULE='$2'/' .zshrc
 elif [ $1 == "proj" ]
 then
 	echo "Changement de projet pour $2"
-	mv .zshrc .zshrc.old
-	cat .zshrc.old | sed 's/PROJECT='$PROJECT'/PROJECT='$2'/' > .zshrc
+	sed -i ".old" 's/PROJECT='$PROJECT'/PROJECT='$2'/' .zshrc
 elif [ $1 == 'all' ]
 then
 	echo "Changement de module pour $1f"
