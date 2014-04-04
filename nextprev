@@ -1,0 +1,26 @@
+#!/bin/sh
+if [ "$1" = "next" ] || [ "$1" = "prev" ]
+then
+	NB=$(basename `pwd` | grep "ex")
+	if [ -n "$NB" ]
+	then
+		NB=$(echo $NB | tr -d "[a-z]")
+		if [ "$1" = "next" ]
+		then
+			NB=$(expr $NB + 1)
+		elif [ "$1" = "prev" ] && [ "$NB" -ne 0 ]
+		then
+			NB=$(expr $NB - 1)
+		else
+			NB=0
+		fi
+		if [ "$NB" -lt "10" ]
+		then
+			DIR="../ex0"$NB
+		else
+			DIR="../ex"$NB
+		fi
+		mkdir -p $DIR
+		cd $DIR
+	fi
+fi
