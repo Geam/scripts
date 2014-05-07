@@ -39,6 +39,9 @@ get_param ()
 		elif [ $1 = "math" ]
 		then
 			MATH=OK
+		elif [ $1 = "printf" ]
+		then
+			PRINTF=OK
 		else
 			OUTPUT=$1
 		fi
@@ -64,7 +67,11 @@ write_dir ()
 	echo -e "OPATH = obj" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "LIBPATH = libft" >> $NAME
+		echo -e "LIBFTPATH = libft" >> $NAME
+	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		echo -e "PRINTFPATH = ft_printf" >> $NAME
 	fi
 	if [ "$MLX" = "OK" ]
 	then
@@ -85,20 +92,28 @@ write_flags ()
 	CFLAGS=" -Wall -Wextra -Werror -I \$(HPATH)"
 	if [ "$LIBFT" = "OK" ]
 	then
-		CFLAGS="$CFLAGS -I \$(LIBPATH)/\$(HPATH)"
+		CFLAGS="$CFLAGS -I \$(LIBFTPATH)/\$(HPATH)"
 	fi
 	if [ "$MLX" = "OK" ]
 	then
 		CFLAGS="$CFLAGS -I \$(XPATH)"
 	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		CFLAGS="$CFLAGS -I \$(PRINTFPATH)/\$(HPATH)"
+	fi
 	echo -e "CFLAGS =$CFLAGS" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
-		LDFLAGS="$LDFLAGS -L \$(LIBPATH) -lft"
+		LDFLAGS="$LDFLAGS -L \$(LIBFTPATH) -lft"
 	fi
 	if [ "$MLX" = "OK" ]
 	then
 		LDFLAGS="$LDFLAGS -L \$(MLXPATH) -lmlx -lXext -lX11"
+	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -L \$(PRINTFPATH) -lftprintf"
 	fi
 	if [ "$TERMCAP" = "OK" ]
 	then
@@ -116,7 +131,11 @@ write_name ()
 	echo -e "\nNAME = $OUTPUT" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
+		echo -e "LIBFT = \$(LIBFTPATH)/libft.a" >> $NAME
+	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		echo -e "PRINTF = \$(PRINTFPATH)/libftprintf.a" >> $NAME
 	fi
 	if [ "$LIB" = "OK" ]
 	then
@@ -151,12 +170,17 @@ write_path_arrangement ()
 
 write_rule_all ()
 {
+	ALL="\nall: \$(OPATH)"
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "\nall: \$(OPATH) \$(LIB) \$(NAME)" >> $NAME
-	else
-		echo -e "\nall: \$(OPATH) \$(NAME)" >> $NAME
+		ALL="$ALL \$(LIBFT)"
 	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		ALL="$ALL \$(PRINTF)"
+	fi
+	ALL="$ALL \$(NAME)"
+	echo -e "$ALL" >> $NAME
 }
 
 write_rule_name ()
@@ -177,7 +201,7 @@ write_rule_obj ()
 	for RULE in $SRCS
 	do
 		echo -en "\n\$(OPATH)/" >> $NAME
-		gcc -MM srcs/$RULE -I includes -I libft/includes >> $NAME
+		gcc -MM srcs/$RULE -I includes -I libft/includes -I ft_printf/includes>> $NAME
 		echo -e "\t@echo \"Creating file \$@\"" >> $NAME
 		echo -e "\t@\$(CC) \$(CFLAGS) -c \$< -o \$@" >> $NAME
 	done
@@ -213,18 +237,38 @@ write_rule_for_libft ()
 {
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "\n\$(LIB):" >> $NAME
-		echo -e "\t@make -C \$(LIBPATH)" >> $NAME
+		echo -e "\n\$(LIBFT):" >> $NAME
+		echo -e "\t@make -C \$(LIBFTPATH)" >> $NAME
 
-		echo -e "\nlib: \$(LIB)" >> $NAME
+		echo -e "\nlibft: \$(LIBFT)" >> $NAME
 
-		echo -e "\nlib.clean:" >> $NAME
-		echo -e "\t@make -C \$(LIBPATH) clean" >> $NAME
+		echo -e "\nlibft.clean:" >> $NAME
+		echo -e "\t@make -C \$(LIBFTPATH) clean" >> $NAME
 
-		echo -e "\nlib.fclean:" >> $NAME
-		echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME
+		echo -e "\nlibft.fclean:" >> $NAME
+		echo -e "\t@make -C \$(LIBFTPATH) fclean" >> $NAME
 
-		echo -e "\nlib.re: lib.fclean lib" >> $NAME
+		echo -e "\nlibft.re: libft.fclean libft" >> $NAME
+	fi
+}
+
+
+write_rule_for_printf ()
+{
+	if [ "$PRINTF" = "OK" ]
+	then
+		echo -e "\n\$(PRINTF):" >> $NAME
+		echo -e "\t@make -C \$(PRINTFPATH)" >> $NAME
+
+		echo -e "\nprintf: \$(PRINTF)" >> $NAME
+
+		echo -e "\nprintf.clean:" >> $NAME
+		echo -e "\t@make -C \$(PRINTFPATH) clean" >> $NAME
+
+		echo -e "\nprintf.fclean:" >> $NAME
+		echo -e "\t@make -C \$(PRINTFPATH) fclean" >> $NAME
+
+		echo -e "\nprintf.re: printf.fclean printf" >> $NAME
 	fi
 }
 
@@ -255,6 +299,7 @@ main ()
 		write_rule_re
 		write_rule_opath
 		write_rule_for_libft
+		write_rule_for_printf
 	fi
 }
 

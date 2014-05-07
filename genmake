@@ -19,6 +19,7 @@ then
 	echo -e "/!\\ Cette derniere option n'est  pas compatibles avec les autres, mais le script ne vous empeche pas de les faire\n"
 	echo -e "Si le fichier Makefile existe déjà, il est renommé en Makefile.back\n"
 else
+
 #
 # Récupération des paramètres
 #
@@ -39,6 +40,9 @@ else
 		elif [ $1 = "math" ]
 		then
 			MATH=OK
+		elif [ $1 = "printf" ]
+		then
+			PRINTF=OK
 		else
 			OUTPUT=$1
 		fi
@@ -49,11 +53,13 @@ else
 	then
 		mv $NAME $NAME.back
 	fi
+
 #
 # Création du fichier avec le header
 #
 	touch $NAME
 	~/scripts/header_42 $NAME "#"
+
 #
 # Écriture des répertoires
 #
@@ -62,26 +68,36 @@ else
 	echo -e "OPATH = obj" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "LIBPATH = libft" >> $NAME
+		echo -e "LIBFTPATH = libft" >> $NAME
+	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		echo -e "PRINTFPATH = ft_printf" >> $NAME
 	fi
 	if [ "$MLX" = "OK" ]
 	then
 		echo -e "MLXPATH = /usr/X11/lib" >> $NAME
 		echo -e "XPATH = /usr/X11/include/X11" >> $NAME
 	fi
+
 #
 # Écriture des chemins vers les éxécutables
 #
 	echo -e "\nCC = /usr/bin/gcc" >> $NAME
 	echo -e "MKDIR = /bin/mkdir" >> $NAME
 	echo -e "RM = /bin/rm" >> $NAME
+
 #
 # Écriture des flags
 #
 	CFLAGS=" -Wall -Wextra -Werror -I \$(HPATH)"
 	if [ "$LIBFT" = "OK" ]
 	then
-		CFLAGS="$CFLAGS -I \$(LIBPATH)/\$(HPATH)"
+		CFLAGS="$CFLAGS -I \$(LIBFTPATH)/\$(HPATH)"
+	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		CFLAGS="$CFLAGS -I \$(PRINTFPATH)/\$(HPATH)"
 	fi
 	if [ "$MLX" = "OK" ]
 	then
@@ -90,7 +106,11 @@ else
 	echo -e "CFLAGS =$CFLAGS" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
-		LDFLAGS="$LDFLAGS -L \$(LIBPATH) -lft"
+		LDFLAGS="$LDFLAGS -L \$(LIBFTPATH) -lft"
+	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		LDFLAGS="$LDFLAGS -L \$(PRINTFPATH) -lftprintf"
 	fi
 	if [ "$MLX" = "OK" ]
 	then
@@ -104,20 +124,29 @@ else
 	then
 		LDFLAGS="$LDFLAGS -lm"
 	fi
-	echo -e "LDFLAGS =$LDFLAGS" >> $NAME
+	if [ "$LIB" != "OK" ]
+	then
+		echo -e "LDFLAGS =$LDFLAGS" >> $NAME
+	fi
+
 #
 # Écriture des noms
 #
 	echo -e "\nNAME = $OUTPUT" >> $NAME
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "LIB = \$(LIBPATH)/libft.a" >> $NAME
+		echo -e "LIBFT = \$(LIBFTPATH)/libft.a" >> $NAME
+	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		echo -e "PRINTF = \$(PRINTFPATH)/libftpintf.a" >> $NAME
 	fi
 	if [ "$LIB" = "OK" ]
 	then
 		echo -e "AR = /usr/bin/ar" >> $NAME
 		echo -e "RANLIB = /usr/bin/ranlib" >> $NAME
 	fi
+
 #
 # Récupérations des sources
 #
@@ -147,21 +176,29 @@ else
 		fi
 	done
 	echo -e "\n$SRC" | sed 's/∑/\\/g'>> $NAME
+
 #
 # Composition des chemins
 #
 	echo -e "\nHFILES = \$(patsubst %,\$(HPATH)/%, \$(HEADER))" >> $NAME
 	echo -e "CFILES = \$(patsubst %,\$(CPATH)/%, \$(SRC))" >> $NAME
 	echo -e "OFILES = \$(patsubst %.c,\$(OPATH)/%.o, \$(SRC))" >> $NAME
+
 #
 # Définition de la règles all
 #
+	ALL="\nall: \$(OPATH)"
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "\nall: \$(OPATH) \$(LIB) \$(NAME)" >> $NAME
-	else
-		echo -e "\nall: \$(OPATH) \$(NAME)" >> $NAME
+		ALL="$ALL \$(LIBFT)"
 	fi
+	if [ "$PRINTF" = "OK" ]
+	then
+		ALL="$ALL \$(PRINTF)"
+	fi
+	ALL="$ALL \$(NAME)"
+	echo -e $ALL >> $NAME;
+
 #
 # Définition de la règles $(NAME)
 #
@@ -174,50 +211,75 @@ else
 	else
 		echo -e "\t@\$(CC) \$(LDFLAGS) \$^ -o \$@" >> $NAME
 	fi
+
 #
 # Définition de la règle %.o
 #
 	echo -e "\n\$(OPATH)/%.o: \$(CPATH)/%.c \$(HFILES)" >> $NAME
 	echo -e "\t@echo \"Creating file \$@\"" >> $NAME
 	echo -e "\t@\$(CC) \$(CFLAGS) -c \$< -o \$@" >> $NAME
+
 #
 # Définition de la règle clean
 #
 	echo -e "\nclean:" >> $NAME
 	echo -e "\t@echo \"Deletion of building files\"" >> $NAME
 	echo -e "\t@\$(RM) -rf \$(OPATH)" >> $NAME
+
 #
 # Définition de la règle fclean
 #
 	echo -e "\nfclean: clean" >> $NAME
 	echo -e "\t@echo \"Deletion of \$(NAME)\"" >> $NAME
 	echo -e "\t@\$(RM) -f \$(NAME)" >> $NAME
+
 #
 # Définition de la règle re
 #
 	echo -e "\nre: fclean all" >> $NAME
+
 #
 # Définition de la règle $(OPATH)
 #
 	echo -e "\n\$(OPATH):" >> $NAME
 	echo -e "\t@echo \"Creation of building directory\"" >> $NAME
 	echo -e "\t@\$(MKDIR) \$(OPATH)" >> $NAME
+
 #
 # Définition des règles pour la libft
 #
 	if [ "$LIBFT" = "OK" ]
 	then
-		echo -e "\n\$(LIB):" >> $NAME
-		echo -e "\t@make -C \$(LIBPATH)" >> $NAME
+		echo -e "\n\$(LIBFT):" >> $NAME
+		echo -e "\t@make -C \$(LIBFTPATH)" >> $NAME
 
-		echo -e "\nlib: \$(LIB)" >> $NAME
+		echo -e "\nlibft: \$(LIBFT)" >> $NAME
 
-		echo -e "\nlib.clean:" >> $NAME
-		echo -e "\t@make -C \$(LIBPATH) clean" >> $NAME
+		echo -e "\nlibft.clean:" >> $NAME
+		echo -e "\t@make -C \$(LIBFTPATH) clean" >> $NAME
 
-		echo -e "\nlib.fclean:" >> $NAME
-		echo -e "\t@make -C \$(LIBPATH) fclean" >> $NAME
+		echo -e "\nlibft.fclean:" >> $NAME
+		echo -e "\t@make -C \$(LIBFTPATH) fclean" >> $NAME
 
-		echo -e "\nlib.re: lib.fclean lib" >> $NAME
+		echo -e "\nlibft.re: libft.fclean libft" >> $NAME
+	fi
+
+#
+# Définition des règles pour la libft
+#
+	if [ "$PRINTF" = "OK" ]
+	then
+		echo -e "\n\$(PRINTF):" >> $NAME
+		echo -e "\t@make -C \$(PRINTFPATH)" >> $NAME
+
+		echo -e "\nft_printf: \$(PRINTF)" >> $NAME
+
+		echo -e "\nft_printf.clean:" >> $NAME
+		echo -e "\t@make -C \$(PRINTFPATH) clean" >> $NAME
+
+		echo -e "\nft_printf.fclean:" >> $NAME
+		echo -e "\t@make -C \$(PRINTFPATH) fclean" >> $NAME
+
+		echo -e "\nft_printf.re: ft_printf.fclean ft_printf" >> $NAME
 	fi
 fi

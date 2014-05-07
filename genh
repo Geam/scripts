@@ -36,5 +36,6 @@ else
 	do
 			cat $FILE | grep "(" | grep -v ";\|\twhile \|\tif \|sizeof\|static \|->\|=\|\tmain(\|\telse\|\t|" | sed 's/.*/&;/' >> $HFILE
 	done
-	echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
+	echo -e "\n#endif" >> $HFILE
+#	echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
 fi

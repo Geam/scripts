@@ -6,4 +6,4 @@ then
 else
 	name=${1}
 fi
-git clone vogsphere@vogsphere.42.fr:$MODULE-1-001/2013/par-2-1/$PROJECT/mdelage $name
+git clone vogsphere@vogsphere.42.fr:$MODULE-1-002/2013/par-2-1/$PROJECT/mdelage $name
