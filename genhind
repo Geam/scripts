@@ -15,7 +15,8 @@ then
 		DEFINE=$(echo $HFILE | tr "." "_" | tr a-z A-Z)
 		echo -e "\n#ifndef "$DEFINE"\n# define "$DEFINE"\n" >> $HFILE
 		cat $FILE | grep "(" | grep -v ";\|\twhile \|\tif \|sizeof\|static \|->\|=\|\tmain(\|\telse\|\t|" | sed 's/.*/&;/' >> $HFILE
-		echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
+		echo -e "\n#endif" >> $HFILE
+#		echo -e "\n#endif /* !"$DEFINE" */" >> $HFILE
 	done
 else
 	FILE=$(basename $1)
